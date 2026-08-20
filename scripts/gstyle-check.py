@@ -111,6 +111,47 @@ UNIVERSAL = [
     (r"\bthe same attached\b", 'name what is attached', "warn"),
 ]
 
+# --- LLM tics ------------------------------------------------------------
+# Phrases models reach for constantly and people almost never do. These fire in
+# BOTH modes: Google's house rules are wrong for a personal essay, but a tic is
+# wrong everywhere. See LLM-TICS.md for the reasoning and how to extend this.
+LLM_TICS = [
+    (r"\b(stated|put|stating|state it) plainly\b|\bplainly (stated|put)\b",
+     "announces candour instead of being candid; say the thing", "fail"),
+    (r"\bload[- ]bearing\b", "structural-engineering metaphor; name what breaks without it", "fail"),
+    (r"\bthe honest (answer|version|truth|characterization|characterisation|read)\b",
+     "implies the rest was less honest; just give the answer", "fail"),
+    (r"\bit'?s worth noting\b|\bworth noting that\b|\bit'?s important to note\b",
+     "filler that defers the point by a clause", "fail"),
+    (r"\bthat said\b|\bhaving said that\b", 'pivot filler; use "but"', "fail"),
+    (r"\bhere'?s the thing\b", "faux-conversational throat-clearing; delete it", "fail"),
+    (r"\b(to be clear|let'?s be clear)\b", "announces clarity instead of being clear", "fail"),
+    (r"\bthe real question is\b", "stages a reveal; just ask the question", "fail"),
+    (r"\bdoes the heavy lifting\b|\bheavy lifting\b", "model metaphor; name what it does", "fail"),
+    (r"\bthe short version\b|\bTL;?DR\b", "signals the long version was padding", "fail"),
+    (r"\bat the end of the day\b", "empty summarizer; delete it", "fail"),
+    (r"\bdelve\b|\blet'?s unpack\b|\bdeep dive\b|\bdive into\b",
+     'model vocabulary for "look at"', "fail"),
+    (r"\ba testament to\b|\bspeaks volumes\b|\bsheds light on\b",
+     "review-copy register; say what the evidence shows", "fail"),
+    (r"\bin today'?s [a-z]+\b|\bever[- ]evolving\b|\brapidly changing landscape\b",
+     "filler opening carrying no information", "fail"),
+    (r"\bnavigat(e|es|ing) the complexit|\bharness(es|ing)? the power\b|"
+     r"\bunlock(s|ing)? the (potential|power)\b",
+     'marketing verb for an ordinary action; use "use" or "handle"', "fail"),
+    (r"\bgame[- ]changer\b|\bparadigm shift\b|\brevolutioni[sz]e\b",
+     "hype with nothing behind it; state the measurable difference", "fail"),
+    (r"\bseamless(ly)?\b|\bholistic\b|\bsynerg(y|ies|istic)\b",
+     "adjective applied without evidence", "fail"),
+    (r"\bwhich is exactly why\b|\bwhich is precisely (the point|why)\b",
+     "self-congratulatory close; end the sentence", "fail"),
+    (r"\b(genuinely|truly) \w+", "hedge-intensifier; delete it or be more specific", "warn"),
+    (r"\bcrucially\b|\bimportantly\b|\bsignificantly\b(?! (better|worse|faster|slower|more|less|higher|lower))",
+     "tells the reader what to care about; let the point carry it", "warn"),
+    (r"\bin practice\b", "a tic when every claim gets one; delete unless contrasting with theory", "warn"),
+    (r"\brobust\b|\bcomprehensive\b", "adjective without evidence; give the number or cut it", "warn"),
+]
+
 # Rules that collide with a personal or brand voice. Doc mode only.
 DOC_ONLY = [
     (r"\bthe user (can|should|must|will|needs)\b", 'address the reader as "you"', "fail"),
@@ -270,7 +311,7 @@ def check(path, mode):
                      f"code, quotes, or fenced blocks and was not checked. If a "
                      f"fenced block holds prose, check it as its own file.")
 
-    rules = UNIVERSAL + (DOC_ONLY if mode == "doc" else [])
+    rules = UNIVERSAL + LLM_TICS + (DOC_ONLY if mode == "doc" else [])
     for pattern, msg, severity in rules:
         seen = set()
         for m in re.finditer(pattern, text, re.I):

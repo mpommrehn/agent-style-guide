@@ -114,6 +114,23 @@ check("leaves 'the same as' alone",
 check("leaves a bare 'do the same' alone",
       "# t\n\nI would do the same.\n", silent=["name the noun"])
 
+print("\nLLM tics")
+check("flags 'stated plainly'", "# t\n\nThat pattern is worth stating plainly.\n", fires=["plainly"])
+check("flags 'load-bearing'", "# t\n\nThe distinction is load-bearing here.\n", fires=["load-bearing"])
+check("flags 'the honest answer'", "# t\n\nThe honest answer is no.\n", fires=["honest"])
+check("flags 'that said' and 'here's the thing'",
+      "# t\n\nThat said, here's the thing about it.\n", fires=["that said", "here's the thing"])
+check("flags marketing verbs", "# t\n\nA game-changer that unlocks the potential.\n",
+      fires=["game-changer", "unlock"])
+# Tics are wrong in a cover letter too, so unlike the Google house rules they
+# must survive voice mode.
+check("tics still fire in voice mode",
+      "# t\n\nThe honest answer, stated plainly, is load-bearing.\n",
+      fires=["honest", "plainly", "load-bearing"], mode="voice")
+check("ordinary prose is untouched",
+      "# t\n\nThe script copies the file before the command runs.\n",
+      silent=["candour", "load-bearing", "filler"])
+
 print("\nmode behaviour")
 VOICED = "# t\n\nWe shipped it. It's great!\n"
 check("doc mode flags 'we' and exclamations", VOICED, fires=["second person", "exclamation"])

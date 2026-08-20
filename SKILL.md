@@ -144,7 +144,7 @@ State these rather than silently following either side:
 | Trusting a clean result on a fence-heavy file | The checker skipped the fences. Extract prose blocks and check them separately. |
 | Applying doc mode to voiced writing | Classify first. In voice mode the voice guide wins. |
 | Rewriting quoted material | Examples, error text, and quotations stay exactly as they are. |
-| Editing imperatives in a file that governs behavior | Rewording a load-bearing instruction for style is a bad trade. Leave it. |
+| Editing imperatives in a file that governs behavior | Rewording an instruction the system depends on, to satisfy a style rule, is a bad trade. Leave it. |
 | Chasing every warning to zero | Warnings need judgment. A stated reason to keep one is a valid outcome. |
 
 ## Real-world note

@@ -96,6 +96,8 @@ Word-level rules, which is the smaller half of the job:
 - Sentences over 25 words, likely passive voice, future tense
 - Missing serial commas
 - "the same" standing in for a noun ("revert on the same")
+- LLM tics: "stated plainly", "load-bearing", "the honest answer", "that said",
+  and the rest of [LLM-TICS.md](LLM-TICS.md)
 
 It strips fenced code, inline code spans, URLs, and quoted terms first, because
 a shell command containing `master` is not a style violation. Wrap anything
@@ -125,6 +127,23 @@ editing, for exactly this reason.
 
 **The checker is a floor, not a ceiling.** It says so in its own output.
 
+## LLM tics
+
+Separate from the Google rules, and they fire in **both** modes.
+
+Google's house rules are situational: "no exclamation points" is right for a
+runbook and wrong for a personal essay. A phrase that marks text as
+machine-written is wrong in both, so [LLM-TICS.md](LLM-TICS.md) is enforced
+everywhere.
+
+The list came from grepping this repository's own documentation, which is a
+better source than intuition about what models overuse. It is meant to be
+extended: add a row to the table, add the pattern to `LLM_TICS` in the checker.
+
+It also names the structural tics no regex will catch — the contrastive
+reframe, the rule of three, the pre-summary — because those are more
+identifying than any single phrase.
+
 ## Departures from Google
 
 Stated rather than silently applied:
@@ -146,14 +165,13 @@ Stated rather than silently applied:
 python3 tests/test_gstyle.py
 ```
 
-33 tests. Six are regressions for bugs found by running the checker against
+40 tests. Six are regressions for bugs found by running the checker against
 real documents rather than by testing it: a stray `---` horizontal rule that
 silently swallowed half a file, `see below` never firing, `leverage` matching
 inside `high-leverage`, `native` matching inside `React Native`, two-word Title
 Case headings passing, and missing British-spelling rules.
 
-That pattern is worth stating plainly: every bug in this checker was found by
-using it, not by writing tests for it.
+Every bug in this checker was found by using it, not by writing tests for it.
 
 ## License
 
