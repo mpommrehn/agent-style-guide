@@ -100,6 +100,20 @@ check("'React Native' is not 'native'",
 check("bare 'native' still fires",
       "# t\n\nIt has native support for that.\n", fires=["ambiguous"])
 
+print("\nambiguous 'the same'")
+check("flags it at a sentence end",
+      "# t\n\nChecking the whole repo for the same.\n", fires=["the same"])
+check("flags it before a trailing preposition",
+      "# t\n\nPlease revert on the same at your earliest convenience.\n", fires=["the same"])
+check("flags 'find the same attached'",
+      "# t\n\nKindly find the same attached.\n", fires=["attached"])
+check("leaves 'the same' + noun alone",
+      "# t\n\nWe looked for the same reason on the same disk.\n", silent=["name the noun"])
+check("leaves 'the same as' alone",
+      "# t\n\nIt behaves the same as before.\n", silent=["name the noun"])
+check("leaves a bare 'do the same' alone",
+      "# t\n\nI would do the same.\n", silent=["name the noun"])
+
 print("\nmode behaviour")
 VOICED = "# t\n\nWe shipped it. It's great!\n"
 check("doc mode flags 'we' and exclamations", VOICED, fires=["second person", "exclamation"])

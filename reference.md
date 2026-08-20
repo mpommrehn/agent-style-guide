@@ -41,6 +41,10 @@ for native readers too.
 - Don't use one word for two meanings anywhere in the document.
 - Replace ambiguous pronouns with the noun. "Make sure that the ad is
   targeted", not "make sure that it's targeted".
+- The same rule catches "the same" used as a noun: "revert on the same",
+  "please find the same attached". It is a British administrative-legalese
+  construction that survives in commercial English because it lets the writer
+  avoid deciding what they are referring to. Name the thing.
 - Define abbreviations on first use.
 - Use text, not images, to convey new information. Images don't get
   translated.

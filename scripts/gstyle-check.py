@@ -94,6 +94,21 @@ UNIVERSAL = [
      "British spelling; American English single-l (canceled, labeled)", "warn"),
     (r"\b(whilst|amongst|towards)\b",
      'British; use "while", "among", "toward"', "warn"),
+    # "the same" standing in for a noun ("revert on the same", "kindly find the
+    # same attached"). A British administrative-legalese relic that survives in
+    # commercial English precisely because it lets the writer avoid deciding
+    # what they are referring to. Google's rule: replace ambiguous pronouns
+    # with the noun. Only flagged after a preposition and only when no noun
+    # follows, so "the same file" and "the same as before" stay clean.
+    # Gated on both sides: a preposition before (so "I would do the same."
+    # stays clean) and either punctuation or a function word after (so "the
+    # same file" and "the same as before" stay clean, while "on the same at
+    # your convenience" does not).
+    (r"\b(?:on|for|with|to|from|in|at|of|upon|regarding|concerning|about)\s+"
+     r"the\s+same\b(?=\s*[.,;:!?)]|\s*$|\s+(?:at|in|on|for|to|from|by|"
+     r"with|and|or|but|so|then|before|after|until|please|kindly)\b)",
+     'ambiguous "the same"; name the noun it stands for', "warn"),
+    (r"\bthe same attached\b", 'name what is attached', "warn"),
 ]
 
 # Rules that collide with a personal or brand voice. Doc mode only.

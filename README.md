@@ -95,6 +95,7 @@ Word-level rules, which is the smaller half of the job:
 - Ambiguous dates, bare link text, directional references
 - Sentences over 25 words, likely passive voice, future tense
 - Missing serial commas
+- "the same" standing in for a noun ("revert on the same")
 
 It strips fenced code, inline code spans, URLs, and quoted terms first, because
 a shell command containing `master` is not a style violation. Wrap anything
@@ -145,7 +146,7 @@ Stated rather than silently applied:
 python3 tests/test_gstyle.py
 ```
 
-27 tests. Six are regressions for bugs found by running the checker against
+33 tests. Six are regressions for bugs found by running the checker against
 real documents rather than by testing it: a stray `---` horizontal rule that
 silently swallowed half a file, `see below` never firing, `leverage` matching
 inside `high-leverage`, `native` matching inside `React Native`, two-word Title
