@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.9", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Run the test suite
+        run: python3 tests/test_gstyle.py
+
+      - name: Check the CLI contract
+        run: |
+          # Exit 1 on a failure, 0 on a clean document. Anything consuming this
+          # in CI or a pre-commit hook depends on that, so assert it directly.
+          printf '# t\n\nSimply utilize the API.\n' > /tmp/bad.md
+          printf '# t\n\nThe service returns a token.\n' > /tmp/good.md
+          if python3 scripts/gstyle-check.py /tmp/bad.md; then
+            echo "expected a non-zero exit for a failing document"; exit 1
+          fi
+          python3 scripts/gstyle-check.py /tmp/good.md
+
+      - name: Check its own docs stay clean
+        run: python3 scripts/gstyle-check.py README.md SKILL.md reference.md VOICE-GUIDE.example.md
