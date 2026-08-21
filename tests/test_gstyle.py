@@ -66,6 +66,18 @@ check("flags -ise, -our, -re, -ce", "# t\n\nIt recognises the behaviour at the c
       fires=["recognises", "behaviour", "centre", "licence"])
 check("accepts American forms", "# t\n\nIt recognizes the behavior at the center under license.\n",
       silent=["british"])
+# Regressions: each of these was written into this repo's own prose and the
+# word lists at the time did not catch any of them.
+check("flags -our words beyond the first eight",
+      "# t\n\ncandour\nrigour\nvigour\nardour\n", fires=["candour", "rigour", "vigour"])
+check("flags -ise beyond verb endings",
+      "# t\n\nrecognisable\nprioritising\n", fires=["recognisable", "prioritising"])
+check("flags the miscellaneous set",
+      "# t\n\nsceptical\nmarvellous\nstoreys\nenquiry\nlearnt\namidst\n",
+      fires=["sceptical", "marvellous", "storeys", "enquiry"])
+check("does not flag American look-alikes",
+      "# t\n\ncandor rigor recognizable analysis program inquiry center\n",
+      silent=["british"])
 
 print("\nheadings")
 check("flags Title Case", "# t\n\n## Set Up The Build Pipeline\n", fires=["title case"])
@@ -81,7 +93,7 @@ check("ignores fenced blocks",
 check("ignores inline code", "# t\n\nThe `master` branch is fine.\n", silent=["master"])
 check("ignores quoted terms (regression)",
       '# t\n\nNever write "sanity check" in a document.\n', silent=["sanity"])
-check("honours the ignore block",
+check("honors the ignore block",
       "# t\n\n<!-- gstyle-ignore-start -->\nAvoid: whitelist, dummy, crazy.\n<!-- gstyle-ignore-end -->\n",
       silent=["whitelist", "dummy"])
 
@@ -129,9 +141,9 @@ check("tics still fire in voice mode",
       fires=["honest", "plainly", "load-bearing"], mode="voice")
 check("ordinary prose is untouched",
       "# t\n\nThe script copies the file before the command runs.\n",
-      silent=["candour", "load-bearing", "filler"])
+      silent=["candor", "load-bearing", "filler"])
 
-print("\nmode behaviour")
+print("\nmode behavior")
 VOICED = "# t\n\nWe shipped it. It's great!\n"
 check("doc mode flags 'we' and exclamations", VOICED, fires=["second person", "exclamation"])
 check("voice mode suspends both", VOICED, silent=["second person", "exclamation"], mode="voice")

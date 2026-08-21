@@ -30,9 +30,9 @@ in every third paragraph.
 <!-- gstyle-ignore-start -->
 | Tic | Why it reads as machine-written | Write instead |
 |---|---|---|
-| stated plainly, put plainly, worth stating plainly | Announces candour rather than being candid. A person who is being plain does not narrate that they are | Say the thing |
+| stated plainly, put plainly, worth stating plainly | Announces candor rather than being candid. A person who is being plain does not narrate that they are | Say the thing |
 | load-bearing | Borrowed from structural engineering and applied to words, assumptions, and arguments. Vanishingly rare in human prose, ubiquitous in model output | "essential", "the argument depends on it", or name what breaks without it |
-| the honest answer, the honest version, honest characterization | Implies the surrounding text was less honest. A tell disguised as candour | Just give the answer |
+| the honest answer, the honest version, honest characterization | Implies the surrounding text was less honest. A tell disguised as candor | Just give the answer |
 | it's worth noting, it's important to note, notably | Filler that defers the point by one clause | State the point |
 | that said, having said that | Pivot filler. A person writes "but" | "but", "however", or start the new sentence |
 | here's the thing | Faux-conversational throat-clearing | Delete it |

@@ -77,13 +77,25 @@ UNIVERSAL = [
     (r"\bhangs?\b", 'use "stops responding" (also distinguishes hung from slow)', "warn"),
     (r"\bwe recommend\b|\bwe suggest\b", "attribute it or state it directly", "warn"),
     (r"\b\w*(?:recognis|organis|analys|initialis|optimis|customis|serialis|"
-     r"normalis|apologis|authoris|categoris|emphasis(?=e)|minimis|maximis|"
-     r"summaris|synchronis|utilis|standardis)(?:e|es|ed|ing|ation)\b",
+     r"normalis|apologis|authoris|categoris|emphasis(?=[eai])|minimis|maximis|"
+     r"summaris|synchronis|utilis|standardis|realis|criticis|generalis|"
+     r"prioritis|specialis|civilis|modernis|familiaris|characteris|"
+     r"visualis|legalis|memoris|publicis|sympathis|theoris)"
+     r"(?:e|es|ed|ing|ation|able|ability|er|ers)\b",
      "British spelling; the guide requires American (-ize)", "fail"),
-    (r"\b(behaviour|colour|favour|honour|labour|neighbour|flavour|rumour)s?\b",
+    (r"\b(behaviour|colour|favour|honour|labour|neighbour|flavour|rumour|"
+     r"candour|ardour|armour|clamour|demeanour|endeavour|fervour|harbour|"
+     r"humour|odour|rancour|rigour|savour|splendour|valour|vapour|vigour|"
+     r"parlour|saviour)s?\b",
      "British spelling; the guide requires American (-or)", "fail"),
-    (r"\b(centre|metre|litre|fibre|calibre)s?\b",
+    (r"\b(centre|metre|litre|fibre|calibre|sabre|sombre|spectre|lustre|"
+     r"meagre|theatre|manoeuvre)s?\b",
      "British spelling; the guide requires American (-er)", "fail"),
+    (r"\b(sceptic|sceptical|sceptically|sceptre|mould|moulded|moulding|"
+     r"plough|smoulder|cosy|kerb|aluminium|programme|storey|storeys|"
+     r"draught|enquire|enquiry|enquiries|marvellous|counsellor|jewellery|"
+     r"skilful|instalment|learnt|spelt|dreamt|leapt|amidst)\b",
+     "British spelling; use the American form", "fail"),
     # Nouns where British keeps -ce and American uses -se. Found in a README
     # that wrote "license" six times and "licence" once, in the sentence
     # explaining its own license terms.
@@ -117,7 +129,7 @@ UNIVERSAL = [
 # wrong everywhere. See LLM-TICS.md for the reasoning and how to extend this.
 LLM_TICS = [
     (r"\b(stated|put|stating|state it) plainly\b|\bplainly (stated|put)\b",
-     "announces candour instead of being candid; say the thing", "fail"),
+     "announces candor instead of being candid; say the thing", "fail"),
     (r"\bload[- ]bearing\b", "structural-engineering metaphor; name what breaks without it", "fail"),
     (r"\bthe honest (answer|version|truth|characterization|characterisation|read)\b",
      "implies the rest was less honest; just give the answer", "fail"),
@@ -176,7 +188,28 @@ def read_text(path):
         xml = re.sub(r"</w:p>", "\n", xml)
         xml = re.sub(r"<[^>]+>", "", xml)
         return html.unescape(xml)
-    return p.read_text(encoding="utf8")
+
+    text = p.read_text(encoding="utf8")
+
+    # Source files: check the comments, which are prose that ships, and blank
+    # the code, which is not prose. Line numbers are preserved so the report
+    # still points at something real. Without this, a British spelling or an
+    # LLM tic in a script comment was invisible to the checker.
+    # Detect by shebang as well as extension: executables in bin/ usually have
+    # no extension at all, which is exactly where a script's prose lives.
+    is_source = p.suffix.lower() in (".sh", ".bash", ".zsh", ".py", ".rb", ".pl") \
+        or text.startswith("#!")
+    if is_source:
+        out = []
+        for line in text.split("\n"):
+            st = line.strip()
+            if st.startswith("#!") or not st.startswith("#"):
+                out.append("")
+            else:
+                out.append(st.lstrip("#").lstrip())
+        return "\n".join(out)
+
+    return text
 
 
 def blank(m):

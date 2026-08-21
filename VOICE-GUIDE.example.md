@@ -12,7 +12,7 @@ reader should feel about the author after two sentences.
 
 ## Signature moves (do these)
 
-The specific, repeatable habits that make the writing recognisable. Be
+The specific, repeatable habits that make the writing recognizable. Be
 concrete enough that someone could check whether a draft has them.
 
 1. **Example: sincere exclamation points.** Used for genuine enthusiasm or
