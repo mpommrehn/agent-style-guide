@@ -131,8 +131,11 @@ LLM_TICS = [
     (r"\b(stated|put|stating|state it) plainly\b|\bplainly (stated|put)\b",
      "announces candor instead of being candid; say the thing", "fail"),
     (r"\bload[- ]bearing\b", "structural-engineering metaphor; name what breaks without it", "fail"),
-    (r"\bthe honest (answer|version|truth|characterization|characterisation|read)\b",
-     "implies the rest was less honest; just give the answer", "fail"),
+    (r"\b(an?|the|one|my) honest (answer|version|truth|characterization|characterisation|read|note|take|assessment|opinion|view)\b"
+     r"|\bhonestly\b|\bto be honest\b|\bin all honesty\b|\bbrutally honest\b|\bhonest(?:ly)? speaking\b",
+     "labels the speaker as honest, which implies the rest was not; say the thing", "fail"),
+    (r"\bcandidly\b|\bfrankly\b|\btruth be told\b|\bthe truth is\b|\bunvarnished\b|\bno sugar[- ]coating\b|\bwithout sugar[- ]coating\b",
+     "announces candor instead of being candid; delete the label", "fail"),
     (r"\bit'?s worth noting\b|\bworth noting that\b|\bit'?s important to note\b",
      "filler that defers the point by a clause", "fail"),
     (r"\bthat said\b|\bhaving said that\b", 'pivot filler; use "but"', "fail"),

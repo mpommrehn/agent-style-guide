@@ -32,7 +32,8 @@ in every third paragraph.
 |---|---|---|
 | stated plainly, put plainly, worth stating plainly | Announces candor rather than being candid. A person who is being plain does not narrate that they are | Say the thing |
 | load-bearing | Borrowed from structural engineering and applied to words, assumptions, and arguments. Vanishingly rare in human prose, ubiquitous in model output | "essential", "the argument depends on it", or name what breaks without it |
-| the honest answer, the honest version, honest characterization | Implies the surrounding text was less honest. A tell disguised as candor | Just give the answer |
+| the honest answer, an honest note, my honest take, honestly, to be honest, in all honesty, brutally honest | Labels the speaker as honest, which implies the surrounding text was less so. A person who is being straight does not announce it; a model does, constantly | Just give the answer |
+| candidly, frankly, truth be told, the truth is, unvarnished, no sugar-coating | The same move with a different word. Candor is in the content, never in the label | Delete the label and say the thing |
 | it's worth noting, it's important to note, notably | Filler that defers the point by one clause | State the point |
 | that said, having said that | Pivot filler. A person writes "but" | "but", "however", or start the new sentence |
 | here's the thing | Faux-conversational throat-clearing | Delete it |
