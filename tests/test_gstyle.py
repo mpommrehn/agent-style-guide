@@ -93,6 +93,14 @@ check("ignores fenced blocks",
 check("ignores inline code", "# t\n\nThe `master` branch is fine.\n", silent=["master"])
 check("ignores quoted terms (regression)",
       '# t\n\nNever write "sanity check" in a document.\n', silent=["sanity"])
+check("ignores a quotation that wraps across lines (regression)",
+      '# t\n\nMark wrote: "make a proposal for a graph line for watts, in a new\n'
+      'section below Fan and Temp, with a note that it comes from the plug."\n'
+      'The next paragraph says note that on its own and is checked.\n\n'
+      'Simply note that this line is prose.\n',
+      silent=["L4"], fires=["L7"])
+check("a quotation on one line does not shield the next line",
+      '# t\n\nHe said "fine" and left.\nUtilize the API here.\n', fires=["utilize"])
 check("honors the ignore block",
       "# t\n\n<!-- gstyle-ignore-start -->\nAvoid: whitelist, dummy, crazy.\n<!-- gstyle-ignore-end -->\n",
       silent=["whitelist", "dummy"])

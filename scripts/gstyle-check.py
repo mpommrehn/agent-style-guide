@@ -16,7 +16,8 @@ govern prose and checking code produces nothing but false positives.
 Skip a passage the checker misreads by wrapping it in
 <!-- gstyle-ignore-start --> and <!-- gstyle-ignore-end -->, or by putting
 "gstyle-ignore" on the line. A quoted term is skipped automatically: a guide
-that says do not write "sanity check" is not writing it.
+that says do not write "sanity check" is not writing it. A quotation that wraps
+across lines within a paragraph is skipped the same way.
 
 Exit 0 = no hard failures. Exit 1 = at least one FAIL.
 
@@ -265,22 +266,34 @@ def line_of(text, pos):
 
 
 QUOTED = re.compile(r"[\"“][^\"”\n]{1,60}[\"”]")
+# A quotation that wraps across lines inside one paragraph: a log quoting the
+# sentence someone typed, a doc quoting a message. Capped so a stray quote mark
+# cannot pair with one paragraphs away.
+QUOTED_SPAN = re.compile(r"[\"“][^\"”]{1,800}[\"”]")
 
 
 def is_quoted(text, start, end):
-    """True if the match sits inside a quoted string on its own line.
+    """True if the match sits inside a quoted string.
 
     A style guide that says don't write "sanity check" is not writing "sanity
-    check". Same for a doc quoting an error message or a UI label. Without this
-    every guidance document flags itself, which is how a checker gets ignored.
+    check". Same for a doc quoting an error message or a UI label, and for a
+    log quoting what a person said across two or three wrapped lines. Without
+    this every guidance document flags itself, which is how a checker gets
+    ignored.
     """
     ls = text.rfind("\n", 0, start) + 1
     le = text.find("\n", end)
     line = text[ls:le if le != -1 else len(text)]
     if "gstyle-ignore" in line:
         return True
-    return any(m.start() < start - ls and m.end() > end - ls
-               for m in QUOTED.finditer(line))
+    if any(m.start() < start - ls and m.end() > end - ls for m in QUOTED.finditer(line)):
+        return True
+    # The enclosing paragraph, for a quotation that started on an earlier line.
+    ps = text.rfind("\n\n", 0, start)
+    ps = 0 if ps == -1 else ps + 2
+    pe = text.find("\n\n", end)
+    para = text[ps:pe if pe != -1 else len(text)]
+    return any(m.start() < start - ps and m.end() > end - ps for m in QUOTED_SPAN.finditer(para))
 
 
 def headings(text):
