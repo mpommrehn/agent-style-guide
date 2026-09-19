@@ -151,6 +151,69 @@ check("ordinary prose is untouched",
       "# t\n\nThe script copies the file before the command runs.\n",
       silent=["candor", "load-bearing", "filler"])
 
+# The candor rules used to be hand-written phrase lists in a fixed word order,
+# so "stated plainly" failed and "said plainly" did not. These are regressions:
+# two of the phrasings below reached a published document before the rule
+# became a crossing of two word lists.
+print("\ncandor family (word order independent)")
+for phrasing in ["Said plainly, the result holds.",
+                 "Speaking plainly, the result holds.",
+                 "To put it plainly, the result holds.",
+                 "Plainly stated, the result holds.",
+                 "The plain answer is no.",
+                 "Put this bluntly: it failed.",
+                 "The honest position is that it works.",
+                 "The honest framing is different.",
+                 "My frank assessment is that it works.",
+                 "I will give you my honest read on it."]:
+    check(f"flags {phrasing[:34]!r}", f"# t\n\n{phrasing}\n", fires=["candor"])
+
+check("flags the clarity frame",
+      "# t\n\nLet me be blunt about the result.\n", fires=["announces clarity"])
+check("flags 'to be clear'",
+      "# t\n\nTo be clear, the build passed.\n", fires=["announces clarity"])
+
+# False positives the crossing has to stay clear of. "clearly" is ordinary
+# English and an adverb a writer is entitled to, which is why the clarity rule
+# is a frame and not a second crossing.
+print("\ncandor family: not these")
+for ok_text in ["Save the export as plain text.",
+                "Store it as plain ASCII and note the encoding.",
+                "The plain old Java object holds the state.",
+                "She stated the result clearly in the summary.",
+                "The plains stretched to the horizon.",
+                "He is an honest broker for both sides.",
+                "Read the plain text version of the note."]:
+    check(f"clean: {ok_text[:34]!r}", f"# t\n\n{ok_text}\n", silent=["candor"])
+
+# Regression: a "within N words" window reached across a full stop.
+check("the window does not cross a sentence boundary",
+      "# t\n\nThe dealer was honest. Take the deal.\n", silent=["candor"])
+check("a second sentence-boundary case",
+      "# t\n\nKeep it plain. Note the date on the form.\n", silent=["candor"])
+
+# Regression: one rule now covers a whole family, so two phrasings sharing a
+# line must both report. The reporter used to keep one hit per rule per line,
+# which hid the second one.
+check("two phrasings on one line both report",
+      "# t\n\nThe honest answer, said bluntly, is fine.\n",
+      fires=["honest answer", "said bluntly"])
+check("'plainly' goes even with no saying word near it",
+      "# t\n\nOn latency the cheaper model is plainly worse.\n", fires=["plainly"])
+
+# Regression: a crossing reaches far enough to step from one quoted phrase to
+# the next in a guide that is forbidding them, and such a list wraps across
+# lines, where the quote marks on a line that starts mid-quotation pair up
+# inverted. Two guidance documents flagged themselves before this.
+check("a guide listing the phrases it forbids does not flag itself",
+      '# t\n\nNever label the writer as honest: "Honest", "honestly", "to be\n'
+      'honest", "the honest answer", "in all honesty", "candidly".\n',
+      silent=["candor"])
+check("the same for a wrapped pair joined by 'and'",
+      '# t\n\nAdded after "one honest\nnote" and "the honest throughput number" '
+      'reached published docs.\n',
+      silent=["candor"])
+
 print("\nmode behavior")
 VOICED = "# t\n\nWe shipped it. It's great!\n"
 check("doc mode flags 'we' and exclamations", VOICED, fires=["second person", "exclamation"])

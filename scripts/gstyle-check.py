@@ -124,24 +124,69 @@ UNIVERSAL = [
     (r"\bthe same attached\b", 'name what is attached', "warn"),
 ]
 
+# --- Tic families --------------------------------------------------------
+# A tic is a *move*, not a phrase. Writing each one out as a list of phrases
+# means enumerating a cross-product by hand, in one word order, and every cell
+# nobody typed is a way through: this file once caught "stated plainly" and
+# missed "said plainly", "speaking plainly" and "the honest position is".
+#
+# So state the family as two word lists and cross them inside a clause, in
+# either order. Adding a word to a list then covers every construction of it,
+# including ones nobody has thought of. Keep the lists in step with the table
+# in LLM-TICS.md.
+
+# Words that claim the writing is candid. "plain" carries technical senses
+# that are not a claim about the writer, so those are carved out.
+CANDOR = (r"plain(?!\s+(?:text|ASCII|HTML|old|vanilla|language|English))"
+          r"|honest|candid|candor|candour|frank|blunt|bluntly"
+          r"|truthful|truthfully|unvarnished")
+
+# Words for the act of saying something, as verb or as noun.
+SPEECH = (r"say|says|said|saying|state|states|stated|stating|put|puts|putting"
+          r"|speak|speaks|speaking|spoken|tell|tells|telling|told"
+          r"|answer|answers|note|notes|take|takes|assessment|position|version"
+          r"|read|view|opinion|framing|summary|appraisal"
+          r"|characterization|characterisation|truth|reckoning")
+
+# Same clause only. A plain "within N words" window reaches across a full stop
+# and reports "The dealer was honest. Take the deal."
+CLAUSE = r"[^.!?;\n]{0,40}?"
+
+CANDOR_SPEECH = (rf"\b(?:{CANDOR})\b{CLAUSE}\b(?:{SPEECH})\b"
+                 rf"|\b(?:{SPEECH})\b{CLAUSE}\b(?:{CANDOR})\b")
+
+# "to be clear", "let me be blunt". This one is a frame with an open slot, not
+# a crossing, and it has to stay that way: crossing clarity words against the
+# speech list would fire on "she stated the result clearly", which is ordinary
+# English and an adverb a writer is entitled to.
+CLARITY_FRAME = (r"\b(?:to be|let me be|let us be|let'?s be|i'?ll be|being)\s+"
+                 r"(?:clear|direct|blunt|honest|frank|explicit|candid|up ?front)\b")
+
 # --- LLM tics ------------------------------------------------------------
 # Phrases models reach for constantly and people almost never do. These fire in
 # BOTH modes: Google's house rules are wrong for a personal essay, but a tic is
 # wrong everywhere. See LLM-TICS.md for the reasoning and how to extend this.
 LLM_TICS = [
-    (r"\b(stated|put|stating|state it) plainly\b|\bplainly (stated|put)\b",
+    (CANDOR_SPEECH,
      "announces candor instead of being candid; say the thing", "fail"),
+    (CLARITY_FRAME,
+     "announces clarity or candor instead of delivering it; delete the frame", "fail"),
     (r"\bload[- ]bearing\b", "structural-engineering metaphor; name what breaks without it", "fail"),
-    (r"\b(an?|the|one|my) honest (answer|version|truth|characterization|characterisation|read|note|take|assessment|opinion|view)\b"
-     r"|\bhonestly\b|\bto be honest\b|\bin all honesty\b|\bbrutally honest\b|\bhonest(?:ly)? speaking\b",
-     "labels the speaker as honest, which implies the rest was not; say the thing", "fail"),
-    (r"\bcandidly\b|\bfrankly\b|\btruth be told\b|\bthe truth is\b|\bunvarnished\b|\bno sugar[- ]coating\b|\bwithout sugar[- ]coating\b",
+    (r"\bhonestly\b|\bfrankly\b|\bcandidly\b",
+     "labels the speaker as honest, which implies the rest was not; delete it", "fail"),
+    # "plainly" goes in every construction, including the bare intensifier in
+    # "plainly worse", where no saying word is nearby for the crossing above to
+    # catch. Delete it: if the sentence needs the emphasis, the evidence around
+    # it is not specific enough, and a number belongs there instead.
+    (r"\bplainly\b",
+     "reads as candor-announcing or as filler emphasis in every construction; delete it", "fail"),
+    (r"\bin all honesty\b|\btruth be told\b|\bthe truth is\b"
+     r"|\bno sugar[- ]coating\b|\bwithout sugar[- ]coating\b|\breal talk\b",
      "announces candor instead of being candid; delete the label", "fail"),
     (r"\bit'?s worth noting\b|\bworth noting that\b|\bit'?s important to note\b",
      "filler that defers the point by a clause", "fail"),
     (r"\bthat said\b|\bhaving said that\b", 'pivot filler; use "but"', "fail"),
     (r"\bhere'?s the thing\b", "faux-conversational throat-clearing; delete it", "fail"),
-    (r"\b(to be clear|let'?s be clear)\b", "announces clarity instead of being clear", "fail"),
     (r"\bthe real question is\b", "stages a reveal; just ask the question", "fail"),
     (r"\bdoes the heavy lifting\b|\bheavy lifting\b", "model metaphor; name what it does", "fail"),
     (r"\bthe short version\b|\bTL;?DR\b", "signals the long version was padding", "fail"),
@@ -293,7 +338,22 @@ def is_quoted(text, start, end):
     ps = 0 if ps == -1 else ps + 2
     pe = text.find("\n\n", end)
     para = text[ps:pe if pe != -1 else len(text)]
-    return any(m.start() < start - ps and m.end() > end - ps for m in QUOTED_SPAN.finditer(para))
+    if any(m.start() < start - ps and m.end() > end - ps for m in QUOTED_SPAN.finditer(para)):
+        return True
+    # A match that begins inside one quoted term and ends inside another. A
+    # rule that crosses two word lists reaches further than a fixed phrase
+    # does, far enough to step from one item to the next in a list of the very
+    # phrases a guide is forbidding: "honest", "the honest answer". Those words
+    # are not the document's own prose either. Checked against the paragraph's
+    # quotation spans, because such a list usually wraps across lines, and on a
+    # line that begins mid-quotation the quote marks pair up inverted.
+    return _both_ends_quoted(QUOTED_SPAN, para, start - ps, end - ps) \
+        or _both_ends_quoted(QUOTED, line, start - ls, end - ls)
+
+
+def _both_ends_quoted(pattern, hay, rs, re_):
+    spans = [(m.start(), m.end()) for m in pattern.finditer(hay)]
+    return any(s < rs < e for s, e in spans) and any(s < re_ < e for s, e in spans)
 
 
 def headings(text):
@@ -365,9 +425,13 @@ def check(path, mode):
         seen = set()
         for m in re.finditer(pattern, text, re.I):
             ln = line_of(text, m.start())
-            if ln in seen or is_quoted(text, m.start(), m.end()):
+            # Keyed on the matched text, not the line alone. One rule now covers
+            # a whole family, so two different phrasings can share a line and
+            # both deserve reporting; repeating the identical phrase does not.
+            key = (ln, flat(m.group(0)).lower())
+            if key in seen or is_quoted(text, m.start(), m.end()):
                 continue
-            seen.add(ln)
+            seen.add(key)
             entry = f'L{ln}: "{flat(m.group(0))}" — {msg}'
             (fails if severity == "fail" else warns).append(entry)
         if len(seen) > 3:
